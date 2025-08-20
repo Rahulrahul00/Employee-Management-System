@@ -5,6 +5,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -13,7 +14,9 @@ const AddEmployee = () => {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", designation: "", department: "" });
   const [editForm, setEditForm] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
+  const navigate = useNavigate()
 
   // Fetch employees
   const employeesData = async () => {
@@ -51,115 +54,107 @@ const AddEmployee = () => {
     setShowModal(true)
   }
 
-  // Delete employee
-  // const handleDelete = async (id) => {
-  //   if (!window.confirm("Are you sure you want to delete this employee?")) return;
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true
+    });
 
-  //   setEmployees(prev => prev.filter(emp => emp.id !== id));
-  //   try {
-  //     await axios.delete(`http://localhost:5000/api/employees/${id}`);
+    if (result.isConfirmed) {
+      try {
+        // Optimistic UI update - remove immediately
+        setEmployees(prev => prev.filter(emp => emp.id !== id));
 
-  //   } catch (error) {
-  //        console.error("Failed to delete employee", error);
-  //   }
-  // };
+        await axios.delete(`http://localhost:5000/api/employees/${id}`);
 
+        if (response.data.message) {
+          toast.success(res.data.message);
+        }
 
-const handleDelete = async (id) => {
-  const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!',
-    cancelButtonText: 'Cancel',
-    reverseButtons: true
-  });
+        Swal.fire(
+          'Deleted!',
+          'Employee has been deleted.',
+          'success'
+        );
 
-  if (result.isConfirmed) {
-    try {
-      // Optimistic UI update - remove immediately
-      setEmployees(prev => prev.filter(emp => emp.id !== id));
-      
-      await axios.delete(`http://localhost:5000/api/employees/${id}`);
-      
-      Swal.fire(
-        'Deleted!',
-        'Employee has been deleted.',
-        'success'
-      );
-    } catch (error) {
-      // Revert if deletion fails
-      employeesData(); // Refresh data from server
-      
-      Swal.fire(
-        'Error!',
-        error.response?.data?.error || 'Failed to delete employee',
-        'error'
-      );
-    }
-  }
-};
+      } catch (error) {
+        // Revert if deletion fails
+        employeesData(); // Refresh data from server
 
-//add and update
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  //Frontend validation
-  if(!form.name || !form.email || !form.designation || !form.department){
-    toast.error('Please fill all fields');
-    return;
-  }
-
-  //Email format validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if(!emailRegex.test(form.email)){
-    toast.error('Please enter a valid email address');
-    return;
-  }
-  try {
-    if (editForm) {
-      const res = await axios.put(`http://localhost:5000/api/employees/${editForm}`, form);
-      console.log(res)
-      //backend valiation
-      if(res.data.success === false){
-        toast.error(res.data.error || 'Update Failed');
-        return;
+        Swal.fire(
+          'Error!',
+          error.response?.data?.error || 'Failed to delete employee',
+          'error'
+        );
       }
-
-      const updatedEmployee = res.data.employee || res.data; 
-      setEmployees(prevEmployees =>
-        prevEmployees.map(emp =>
-          emp.id == editForm ? updatedEmployee : emp
-        )
-      );
-      toast.success(res.data.message);
-    } else {
-      const res = await axios.post('http://localhost:5000/api/employees', form);
-      const newEmployee = res.data.employee || res.data;
-      setEmployees(prevEmployees => [...prevEmployees, newEmployee]);
-      
-      toast.success(res.data.message);
     }
-    setForm({ name: "", email: "", designation: "", department: "" });
-    setEditForm(null);
-    setShowModal(false);
-  } catch (error) {
-   console.error('Operation failed:', error)
+  };
 
-    // Handle different error scenarios
-   if(error.response){
-    const serverError = error.response.data;
-    toast.error(serverError.error || 'Server error')
-   }else if(error.request){
-    toast.error('Network error-Please check your connection');
-   }else{
-      toast.error('Request failed to send');
-   }
+  //add and update
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    //Frontend validation
+    if (!form.name || !form.email || !form.designation || !form.department) {
+      toast.error('Please fill all fields');
+      return;
+    }
+
+    //Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    try {
+      if (editForm) {
+        const res = await axios.put(`http://localhost:5000/api/employees/${editForm}`, form);
+        console.log(res)
+
+        //backend valiation
+        if (res.data.success === false) {
+          toast.error(res.data.error || 'Update Failed');
+          return;
+        }
+
+        const updatedEmployee = res.data.employee || res.data;
+        setEmployees(prevEmployees =>
+          prevEmployees.map(emp =>
+            emp.id == editForm ? updatedEmployee : emp
+          )
+        );
+        toast.success(res.data.message);
+      } else {
+        const res = await axios.post('http://localhost:5000/api/employees', form);
+        const newEmployee = res.data.employee || res.data;
+        setEmployees(prevEmployees => [...prevEmployees, newEmployee]);
+
+        toast.success(res.data.message);
+      }
+      setForm({ name: "", email: "", designation: "", department: "" });
+      setEditForm(null);
+      setShowModal(false);
+    } catch (error) {
+      console.error('Operation failed:', error)
+
+      // Handle different error scenarios
+      if (error.response) {
+        const serverError = error.response.data;
+        toast.error(serverError.error || 'Server error')
+      } else if (error.request) {
+        toast.error('Network error-Please check your connection');
+      } else {
+        toast.error('Request failed to send');
+      }
+    }
   }
-}
 
   return (
     <div className="container py-5">
@@ -167,9 +162,12 @@ const handleDelete = async (id) => {
         <div className='card-body'>
 
           {/* Headder */}
-          <div className=' d-flex justify-content-between align-items-center border-bottom pb-3 mb-3'>
+          <div className="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
             <h4>Employee Management System</h4>
-            <button onClick={handleAdd} className='btn btn-success'>Add Employee</button>
+            <div className="">
+              <button onClick={()=>navigate('/attendance')} className="btn btn-warning text-black mx-3 fw-semibold">Attendance</button>
+              <button onClick={handleAdd} className="btn btn-success fw-semibold ">Add Employee</button>
+            </div>
           </div>
           {/* table */}
           <div className='table-responsive'>
@@ -263,7 +261,7 @@ const handleDelete = async (id) => {
 
                   <div className="modal-footer">
                     <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                    <button type="submit" className="btn btn-primary">{editForm ? "Update" : "Save"}</button>
+                    <button type="submit" className="btn btn-primary" disabled={isLoading}>{editForm ? "Update" : "Save"}</button>
                   </div>
 
                 </div>

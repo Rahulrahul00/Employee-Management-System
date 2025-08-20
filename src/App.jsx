@@ -1,13 +1,27 @@
 import React from 'react'
-import AddEmployee from './components/AddEmployee'
+import AddEmployee from './pages/addEmploye/AddEmployee.jsx'
 import { ToastContainer } from 'react-toastify'
+import Navbar from './components/Navbar.jsx'
+import Attendance from './pages/attendance/Attendance.jsx'
+import { Routes, Route, Link } from "react-router-dom";
+
+
 
 
 const App = () => {
   return (
     <div>
-      <AddEmployee />
+     <Navbar/>
+{/*   
+      <AddEmployee /> */}
+      {/* <Attendance/>  */}
+     
       <ToastContainer position="top-right" autoClose={3000}/>
+      <Routes>
+        <Route path='/' element={<AddEmployee/>}></Route>
+        <Route path='/attendance' element={<Attendance/>}></Route>
+      </Routes>
+      
     </div>
   )
 }
