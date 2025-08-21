@@ -1,9 +1,11 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 // import { Link } from 'react-router-dom';
 
 const Navbar = () => {
+
+  const navigate = useNavigate();
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container-fluid">
@@ -34,7 +36,7 @@ const Navbar = () => {
               <a className="nav-link" href="#">Contact Us</a>
             </li>
           </ul>
-          <button className="btn btn-outline-primary">Login</button>
+          <button onClick={()=>navigate('/login')}  className="btn btn-outline-primary">Login</button>
         </div>
       </div>
     </nav>
