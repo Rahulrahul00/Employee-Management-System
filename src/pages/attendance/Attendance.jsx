@@ -20,10 +20,11 @@ const Attendance = () => {
   //Fetch data
   useEffect(() => {
     const fetchData = async () => {
+      const token = localStorage.getItem('token');
       try {
         const [employeeRes, attendanceRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/employees'),
-          axios.get('http://localhost:5000/api/attendance')
+          axios.get('http://localhost:5000/api/employees',{headers:{Authorization:`Bearer ${token}`}}),
+          axios.get('http://localhost:5000/api/attendance',{headers:{Authorization:`Bearer ${token}`}})
         ]);
         setEmployees(employeeRes.data);
         setAttendance(attendanceRes.data);
@@ -73,13 +74,14 @@ const formatTime = (timeString) => {
 //form submission
   const handleSubmit = async (e) =>{
     e.preventDefault();
+    const token = localStorage.getItem('token')
     try{
-      await axios.post('http://localhost:5000/api/attendance', form);
+      await axios.post('http://localhost:5000/api/attendance', form, {headers:{Authorization:`Bearer ${token}`}});
       toast.success('Attendance marked successfully');
       setShowModal(false);
 
       //Refresh Data
-      const res = await axios.get('http://localhost:5000/api/attendance');
+      const res = await axios.get('http://localhost:5000/api/attendance', {headers:{Authorization:`Bearer ${token}`}});
       setAttendance(res.data);
     }catch(error){
       toast.error(error.response?.data?.error || 'Failed to mark attendance')

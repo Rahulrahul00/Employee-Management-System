@@ -1,11 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link, useNavigate } from 'react-router-dom';
-// import { Link } from 'react-router-dom';
+
 
 const Navbar = () => {
-
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn]= useState(false);
+
+  useEffect(()=>{
+    const token = localStorage.getItem("token")
+    setIsLoggedIn(!!token);
+  },[])
+  
+  const handleLogout = () =>{
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    navigate('/login')
+  }
+
+
+ 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container-fluid">
@@ -36,7 +50,16 @@ const Navbar = () => {
               <a className="nav-link" href="#">Contact Us</a>
             </li>
           </ul>
-          <button onClick={()=>navigate('/login')}  className="btn btn-outline-primary">Login</button>
+          {
+            isLoggedIn ? (
+               <button onClick={handleLogout} className="btn btn-outline-danger">
+              Logout
+            </button>
+            ):(
+              <button onClick={()=>navigate('/login')}  className="btn btn-outline-primary">Login</button>
+            )
+          }
+          
         </div>
       </div>
     </nav>

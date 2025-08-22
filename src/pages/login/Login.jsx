@@ -8,11 +8,13 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const onSubmitHandler = async (e) =>{
     e.preventDefault()
+    setLoading(true);
     try{
       if( state === 'Sign Up'){
         //register API
@@ -35,25 +37,25 @@ const Login = () => {
           setPassword('')
           
           toast.success('Login Successful!')
-          navigate('/');
+          navigate('/employee');
           
         }else{
           console.log(error);
-          toast.error(error.message);
+          toast.error(error.message || 'Authentication failed');
         }
     }
-    
-
-    }catch(error){
+  }catch(error){
       console.log("Auth Error");
       toast.error(error.message);
+    }finally{
+      setLoading(false)
     }
   }
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
-      <div className="card shadow p-4" style={{ width: "28rem" }}>
-        <h3 className="text-center mb-3">
+      <div className="card p-4" style={{ width: "28rem", boxShadow: "0 4px 10px #c77dff" }}>
+        <h3 className="text-center mb-3" style={{color:"#5a189a"}}> 
           {state === "Sign Up" ? "Create Account" : "Login"}
         </h3>
         <p className="text-center text-muted">
@@ -96,8 +98,8 @@ const Login = () => {
             />
           </div>
 
-          <button  type="submit" className="btn btn-dark w-100">
-            {state === "Sign Up" ? "Create Account" : "Login"}
+          <button disabled={loading}  type="submit" className="btn rounded-pill text-white fw-semibold  w-100" style={{ backgroundColor: "#5a189a" }}>
+            { loading ? "Processing..." : (state === "Sign Up" ? "Create Account" : "Login")}
   
           </button>
         </form>
@@ -107,8 +109,8 @@ const Login = () => {
             <p>
               Already have an account?{" "}
               <span
-                className="text-primary fw-bold"
-                style={{ cursor: "pointer" }}
+                className="fw-bold"
+                style={{ cursor: "pointer", color:"#5a189a",textDecoration:"underline"}}
                 onClick={() => setState("Login")}
               >
                 Login here
@@ -118,8 +120,8 @@ const Login = () => {
             <p>
               Don’t have an account?{" "}
               <span
-                className="text-primary fw-bold"
-                style={{ cursor: "pointer" }}
+                className=" fw-bold "
+                style={{ cursor: "pointer", color:"#5a189a", textDecoration:"underline" }}
                 onClick={() => setState("Sign Up")}
               >
                 Sign up here

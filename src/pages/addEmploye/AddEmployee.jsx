@@ -20,9 +20,12 @@ const AddEmployee = () => {
 
   // Fetch employees
   const employeesData = async () => {
+    const token = localStorage.getItem('token');
     try {
-      const { data } = await axios.get('http://localhost:5000/api/employees');
-      console.log(data)
+      const { data } = await axios.get('http://localhost:5000/api/employees',
+       {headers:{Authorization:`Bearer ${token}`}});
+
+      // console.log(data)
       setEmployees(data)
     } catch (error) {
       console.log("Data not found", error)
@@ -55,6 +58,7 @@ const AddEmployee = () => {
   }
 
   const handleDelete = async (id) => {
+    const token = localStorage.getItem('token');
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -72,7 +76,9 @@ const AddEmployee = () => {
         // Optimistic UI update - remove immediately
         setEmployees(prev => prev.filter(emp => emp.id !== id));
 
-        await axios.delete(`http://localhost:5000/api/employees/${id}`);
+        await axios.delete(`http://localhost:5000/api/employees/${id}`,
+          {headers:{Authorization:`Bearer ${token}`}}
+        );
 
         if (response.data.message) {
           toast.success(res.data.message);
@@ -99,6 +105,7 @@ const AddEmployee = () => {
 
   //add and update
   const handleSubmit = async (e) => {
+    const token = localStorage.getItem('token');
     e.preventDefault();
 
     //Frontend validation
@@ -115,7 +122,9 @@ const AddEmployee = () => {
     }
     try {
       if (editForm) {
-        const res = await axios.put(`http://localhost:5000/api/employees/${editForm}`, form);
+        const res = await axios.put(`http://localhost:5000/api/employees/${editForm}`, form,
+          {headers:{Authorization:`Bearer ${token}`}}
+        );
         console.log(res)
 
         //backend valiation
@@ -132,7 +141,9 @@ const AddEmployee = () => {
         );
         toast.success(res.data.message);
       } else {
-        const res = await axios.post('http://localhost:5000/api/employees', form);
+        const res = await axios.post('http://localhost:5000/api/employees', form,
+          {headers:{Authorization:`Bearer ${token}`}}
+        );
         const newEmployee = res.data.employee || res.data;
         setEmployees(prevEmployees => [...prevEmployees, newEmployee]);
 
