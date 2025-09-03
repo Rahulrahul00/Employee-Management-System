@@ -15,11 +15,9 @@ const Navbar = () => {
   const handleLogout = () =>{
     localStorage.removeItem('token');
     setIsLoggedIn(false);
-    navigate('/login')
+    navigate('/')
   }
 
-
- 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container-fluid">
@@ -38,17 +36,17 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <a className="nav-link active" aria-current="page" href="#">Home</a>
+              <Link className="nav-link fw-semibold" aria-current="page" to="/employee">Dashboard</Link>
             </li>
        <li className="nav-item">
-              <a className="nav-link active" aria-current="page" href="#">About</a>
+              <Link className="nav-link fw-semibold" aria-current="page" to="/attendance">Attendance</Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">Services</a>
+              
+              <Link className="nav-link fw-semibold" to="/report">Report</Link>
+
             </li>
-            <li className="nav-item">
-              <a className="nav-link" href="#">Contact Us</a>
-            </li>
+           
           </ul>
           {
             isLoggedIn ? (
@@ -56,7 +54,7 @@ const Navbar = () => {
               Logout
             </button>
             ):(
-              <button onClick={()=>navigate('/login')}  className="btn btn-outline-primary">Login</button>
+              <button onClick={()=>navigate('/')}  className="btn btn-outline-primary">Login</button>
             )
           }
           

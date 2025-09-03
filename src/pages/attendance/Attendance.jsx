@@ -3,6 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button, Form, Table, Badge } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
 
 const Attendance = () => {
   const [attendance, setAttendance] = useState([]);
@@ -15,7 +17,8 @@ const Attendance = () => {
     check_in: '',
     check_out: ''
   });
-  const [selectedEmployee, setSelectedEmployee] = useState(null)
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const navigate = useNavigate();
 
   //Fetch data
   useEffect(() => {
@@ -23,13 +26,13 @@ const Attendance = () => {
       const token = localStorage.getItem('token');
       try {
         const [employeeRes, attendanceRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/employees',{headers:{Authorization:`Bearer ${token}`}}),
-          axios.get('http://localhost:5000/api/attendance',{headers:{Authorization:`Bearer ${token}`}})
+          axios.get('http://localhost:5000/api/employees', { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get('http://localhost:5000/api/attendances', { headers: { Authorization: `Bearer ${token}` } })
         ]);
         setEmployees(employeeRes.data);
         setAttendance(attendanceRes.data);
         console.log(employeeRes.data)
-        
+
       } catch (error) {
         toast.error('Failed to fetch data')
         console.log('failed to fecth data', error)
@@ -39,55 +42,55 @@ const Attendance = () => {
   }, []);
 
   //Input Changes
-  const handleInputChanges = (e)=>{
-     const {name, value} = e.target;
-     setForm(prev => ({...prev, [name]: value}));
+  const handleInputChanges = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   }
 
-//Updating date format
-const formatDate = (dateString) =>{
-  if(!dateString) return 'N/A';
+  //Updating date format
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
 
-  const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() +1).padStart(2, '0');
-  const year = date.getFullYear();
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
 
-  return `${day}-${month}-${year}` ;
-}
+    return `${day}-${month}-${year}`;
+  }
 
-// Format time to 12-hour format with AM/PM
-const formatTime = (timeString) => {
-  if (!timeString) return 'N/A';
-  // Create a date object (using arbitrary date + your time)
-  const date = new Date(`2000-01-01T${timeString}`);
-  
-// Format as 12-hour time with AM/PM
-  return date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
-};
+  // Format time to 12-hour format with AM/PM
+  const formatTime = (timeString) => {
+    if (!timeString) return 'N/A';
+    // Create a date object (using arbitrary date + your time)
+    const date = new Date(`2000-01-01T${timeString}`);
+
+    // Format as 12-hour time with AM/PM
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
 
 
-//form submission
-  const handleSubmit = async (e) =>{
+  //form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token')
-    try{
-      await axios.post('http://localhost:5000/api/attendance', form, {headers:{Authorization:`Bearer ${token}`}});
+    try {
+      await axios.post('http://localhost:5000/api/attendances', form, { headers: { Authorization: `Bearer ${token}` } });
       toast.success('Attendance marked successfully');
       setShowModal(false);
 
       //Refresh Data
-      const res = await axios.get('http://localhost:5000/api/attendance', {headers:{Authorization:`Bearer ${token}`}});
+      const res = await axios.get('http://localhost:5000/api/attendances', { headers: { Authorization: `Bearer ${token}` } });
       setAttendance(res.data);
-    }catch(error){
+    } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to mark attendance')
     }
   }
-  
+
   return (
 
     <div className="container my-5">
@@ -95,10 +98,21 @@ const formatTime = (timeString) => {
         <div className='card-body'>
           <div className='d-flex justify-content-between align-items-center mb-4'>
             <h4>Attendance Records</h4>
+            <div className='d-flex justify-content-end'>
+            <Button onClick={()=>navigate('/attendancereport')} className="black-btn fw-semibold mx-3" style={{
+              backgroundColor: "#04151f",
+              color: "white",
+              fontWeight: 600,
+              border: "none",
+              
+            }} size="sm">
+              Report
+            </Button>
             <Button onClick={() => setShowModal(true)}>Mark Attendance</Button>
+            </div>
           </div>
-        
-        
+
+
           {/* Table */}
           <Table striped bordered hover>
             <thead>
@@ -112,23 +126,23 @@ const formatTime = (timeString) => {
               </tr>
             </thead>
             <tbody>
-                {attendance.map(record =>(
-                  <tr key={record.id}>
-                    <td>{formatDate(record.date)}</td>
-                    <td>{record.employee_name}</td>
-                    <td className='text-center'>
-                      <Badge
-                        bg={
-                          record.status === 'present' ? 'success' :
+              {attendance.map(record => (
+                <tr key={record.id}>
+                  <td>{formatDate(record.date)}</td>
+                  <td>{record.employee_name}</td>
+                  <td className='text-center'>
+                    <Badge
+                      bg={
+                        record.status === 'present' ? 'success' :
                           record.status === 'absent' ? 'danger' : 'warning'
-                        }
-                      >{record.status} </Badge>
-                    </td>
-                    <td className='text-center'>{formatTime(record.check_in )|| 'N/A'}</td>
-                    <td className='text-center'>{formatTime(record.check_out) || 'N/A'}</td>
+                      }
+                    >{record.status} </Badge>
+                  </td>
+                  <td className='text-center'>{formatTime(record.check_in) || 'N/A'}</td>
+                  <td className='text-center'>{formatTime(record.check_out) || 'N/A'}</td>
 
-                  </tr>
-                ))}
+                </tr>
+              ))}
             </tbody>
 
           </Table>
@@ -146,10 +160,10 @@ const formatTime = (timeString) => {
             <Form.Group className="mb-3">
               <Form.Label>Employee</Form.Label>
               <Form.Select
-                 name="employee_id"
-                 value={form.employee_id}
-                 onChange={handleInputChanges}
-                 required
+                name="employee_id"
+                value={form.employee_id}
+                onChange={handleInputChanges}
+                required
               >
                 <option value="">Select Employee</option>
                 {
@@ -173,21 +187,21 @@ const formatTime = (timeString) => {
             </Form.Group >
 
             <Form.Group className="mb-3" >
-                <Form.Label>Status</Form.Label>
-                <Form.Select
-                   name="status"
-                   value={form.status}
-                   onChange={handleInputChanges}
-                   required 
-                >
+              <Form.Label>Status</Form.Label>
+              <Form.Select
+                name="status"
+                value={form.status}
+                onChange={handleInputChanges}
+                required
+              >
                 <option value="present">Present</option>
                 <option value="absent">Absent</option>
-                
 
-                </Form.Select>
+
+              </Form.Select>
             </Form.Group>
 
-            {form.status !== 'absent' &&(
+            {form.status !== 'absent' && (
               <>
                 <Form.Group className='mb-3'>
                   <Form.Label>Check In Time</Form.Label>
@@ -196,26 +210,26 @@ const formatTime = (timeString) => {
                     name='check_in'
                     value={form.check_in}
                     onChange={handleInputChanges}
-                    required={form.status !== 'absent'}                  
+                    required={form.status !== 'absent'}
                   />
                 </Form.Group>
 
-                {form.status !== '' &&(
+                {form.status !== '' && (
                   <Form.Group className="mb-3">
                     <Form.Label>Check Out Time</Form.Label>
                     <Form.Control
-                       type='time'
-                       name='check_out'
-                       onChange={handleInputChanges}
-                       value={form.check_out}
-                       
+                      type='time'
+                      name='check_out'
+                      onChange={handleInputChanges}
+                      value={form.check_out}
+
                     />
                   </Form.Group>
                 )}
               </>
             )}
 
-             <div className="d-flex justify-content-end gap-2">
+            <div className="d-flex justify-content-end gap-2">
               <Button variant="secondary" onClick={() => setShowModal(false)}>
                 Cancel
               </Button>

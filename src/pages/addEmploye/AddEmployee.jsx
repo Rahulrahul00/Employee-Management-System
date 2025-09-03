@@ -16,7 +16,7 @@ const AddEmployee = () => {
   const [editForm, setEditForm] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // Fetch employees
   const employeesData = async () => {
@@ -81,8 +81,8 @@ const AddEmployee = () => {
         );
 
         if (response.data.message) {
-          toast.success(res.data.message);
-        }
+          toast.success(response.data.message);
+        }   
 
         Swal.fire(
           'Deleted!',
@@ -94,11 +94,11 @@ const AddEmployee = () => {
         // Revert if deletion fails
         employeesData(); // Refresh data from server
 
-        Swal.fire(
-          'Error!',
-          error.response?.data?.error || 'Failed to delete employee',
-          'error'
-        );
+        // Swal.fire(
+        //   'Error!',
+        //   error.response?.data?.error || 'Failed to delete employee',
+        //   'error'
+        // );
       }
     }
   };

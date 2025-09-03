@@ -1,0 +1,123 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.headName {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px;
+  color: #2c3e50;
+}
+.hname {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+.subtitle {
+  color: #7f8c8d;
+  font-size: 1;
+}
+.cards-containerr {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+.cardss {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  width: 350px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+.cardss:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+.card-headerss {
+  padding: 25px;
+  text-align: center;
+  color: white;
+}
+.attendance-header {
+  /* background: linear-gradient(135deg, #a36cf0 0%, #d93cde 100%); */
+  background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.eattendance-header{
+    background-image: linear-gradient(to right, #ff8177 0%, #ff867a 0%, #ff8c7f 21%, #f99185 52%, #cf556c 78%, #b12a5b 100%);
+}
+.card-body {
+  padding: 25px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+.features {
+  margin-bottom: 25px;
+  flex-grow: 1;
+}
+.card-description {
+  color: #7f8c8d;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+.feature {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.icon{
+    margin-right: 1rem;
+    color: #764ba2;
+}
+.eicon{
+    margin-right: 1rem;
+    color: #ec4871;
+}
+.list{
+    font-weight: 500;
+    color: #192530;
+}
+.btnn{
+    background: #764ba2;
+    color:#ffffff;
+    width: 17rem;
+    height: 2rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 0.2rem;
+    transition: ease-in-out 0.5s;
+    
+}
+.btnn:hover{
+    background: #ffffff;
+    color:#543ee2;
+    border:1px solid #543ee2;
+    
+}
+.ebtnn:hover{
+    background: #ffffff;
+    color:#ec4871;
+    border:1px solid #ec4871;
+}
+.ebtnn{
+    background: #ec4871;
+    color:#ffffff;
+    width: 17rem;
+    height: 2rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 0.2rem;
+    transition: ease-in-out 0.5s;
+    
+}
