@@ -44,7 +44,7 @@ const Report = () => {
 
                         </div>
                         <div className='text-center'>
-                            <button className='btnn' onClick={()=>navigate('/')}>View Attendance Reports</button>
+                            <button className='btnn' onClick={()=>navigate('/attendance')}>View Attendance Reports</button>
                         </div>
                          
                     </div>

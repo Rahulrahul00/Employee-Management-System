@@ -2,9 +2,13 @@
 
 // export default EmployeeReport;
 import React, { useEffect, useState } from "react";
-import { Table, Input, DatePicker, Space, Button } from "antd";
+import { Table, Input, DatePicker, Dropdown, Space, Button,  } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { FaDownload } from "react-icons/fa";
+
 
 const { Search } = Input;
 // const { RangePicker } = DatePicker;
@@ -17,8 +21,14 @@ const EmployeeReport = () => {
     dayjs().endOf("month"),
   ]);
 
+const [pagination , setPagination]  = useState({
+  current: 1,
+  pageSize:5,
+  total:0,
+})
+
   // Fetch report data
-  const fetchReport = async (employeeName = "") => {
+  const fetchReport = async (employeeName = "", page = pagination.current, pageSize = pagination.pageSize) => {
     const token = localStorage.getItem("token");
     try {
       setLoading(true);
@@ -29,11 +39,20 @@ const EmployeeReport = () => {
         "http://localhost:5000/api/attendances/employee-report",
         {
           headers: { Authorization: `Bearer ${token}` },
-          params: { employeeName, startDate, endDate },
+          params: { employeeName, startDate, endDate, page, pageSize},
         }
       );
+       
+      //backend should return { rows: [...], total: number }
+      setData(res.data.data);
+      setPagination({
+        ...pagination,
+        current: res.data.pagination.current,
+        pageSize: res.data.pagination.pageSize,
+        total:res.data.pagination.total,
 
-      setData(res.data);
+      })
+      // console.log(res.data)
     } catch (error) {
       console.error("Error fetching report:", error);
     } finally {
@@ -46,7 +65,7 @@ const EmployeeReport = () => {
   }, [dateRange]);
 
   const onSearch = (value) => {
-    fetchReport(value);
+    fetchReport(value, 1 , pagination.pageSize);//reset to first page on search
   };
   const formatHours = (decimalHours) => {
     if (!decimalHours) return "0 h 0 m";
@@ -55,30 +74,137 @@ const EmployeeReport = () => {
     return `${hours}h  ${minutes}m`;
   };
 
+  //Export pdf formatte
+  const exportPDF = () => {
+    const doc = new jsPDF();
+
+    //title
+    doc.setFontSize(16);
+    doc.text('Employee Report', 14, 15)
+
+    //Table heading
+    const tableColumn = ["Employee Name", "Total Working Days", "Total Leaves", "Total Working Hours"]
+    const tableRows = [];
+
+    data.forEach((row) => {
+      const rowData = [
+        row.employee_name,
+        row.total_working_days,
+        row.total_leaves,
+        formatHours(row.total_working_days),
+      ];
+      tableRows.push(rowData)
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 25,
+    });
+    doc.save('employee_report.pdf');
+  }
+
 
   const columns = [
-     { title: "Employee ID", dataIndex: "employee_id", key: "employee_id" },
-    { title: "Employee Name", dataIndex: "employee_name", key: "employee_name" },
-    { title: "Total Working Days", dataIndex: "total_working_days", key: "total_working_days" },
-    { title: "Total Leaves", dataIndex: "total_leaves", key: "total_leaves" },
+    { title: "SL No", key: "slno", render:(text,record, index) => (pagination.current - 1) * pagination.pageSize + index + 1, align:"center" },
+    { title: "Employee Name", dataIndex: "employee_name", key: "employee_name", align: "center" },
+    { title: "Total Working Days", dataIndex: "total_working_days", key: "total_working_days",  align: "center" },
+    { title: "Total Leaves", dataIndex: "total_leaves", key: "total_leaves",  align: "center" },
     {
       title: "Total Working Hours", dataIndex: "total_working_hours", key: "total_working_hours",
-      render: (value) => formatHours(value) // fromat HH:MM
+      render: (value) => formatHours(value), // formatt HH:MM
+       align: "center"
+    },
+  ];
+
+  const items = [
+    {
+      key: "1",
+      label: (
+        <div onClick={async () => {
+          const token = localStorage.getItem('token');
+          try {
+            const res = await axios.get("http://localhost:5000/api/attendances/employee-report/export", {
+              headers: { Authorization: `Bearer ${token}` },
+              responseType: 'blob',
+            });
+
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'employee_report.xlsx');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+          } catch (error) {
+            console.log("Error exporting report:", error);
+          }
+        }}>
+          Export to Excel
+        </div>
+      ),
+    },
+    {
+      key: "2",
+      label: (
+        <div onClick={exportPDF}>
+          Export to PDF
+        </div>
+      ),
     },
   ];
 
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: 20, position: "relative" }}>
       <h2 className="text-center fw-semibold" style={{ color: "#386641" }}>Employee Report</h2>
 
+
       {/* Search + Date Filter */}
-      <Space style={{ marginBottom: 20 }}>
+      <Space style={{ marginBottom: 20, width: '100%' }}>
         <Search
           placeholder="Search employee by name"
           onSearch={onSearch}
           enterButton
           style={{ width: 300 }}
         />
+        {/* <div className="d-flex justify-content-end" style={{ position: 'absolute', right: '2rem', top: '5rem' }}>
+           <FaDownload className="fs-4"/> 
+          <Button className="" type="primary"
+            onClick={async () => {
+              const token = localStorage.getItem('token');
+              try {
+                const res = await axios.get("http://localhost:5000/api/attendances/employee-report/export", {
+                  headers: { Authorization: `Bearer ${token}` },
+                  responseType: 'blob', // import for excel files
+                });
+
+                //Create a URL for the blob
+                const url = window.URL.createObjectURL(new Blob([res.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'employee_report.xlsx'); //file name
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+              } catch (error) {
+                console.log("Error exporting report:", error);
+              }
+            }}
+          >
+            Export to Excel
+          </Button>
+          <Button danger onClick={exportPDF}>
+            Export to PDF
+          </Button>
+        </div> */}
+        <div className="d-flex justify-content-end" style={{ position: 'absolute', right: '2rem', top: '5rem' }}>
+          <Dropdown menu={{ items }} placement="bottomRight">
+            <Button icon={<FaDownload className="fs-5" />}>Export</Button>
+          </Dropdown>
+        </div>
+
+
         {/* <RangePicker
           value={dateRange}
           onChange={(values) => setDateRange(values)}
@@ -93,35 +219,16 @@ const EmployeeReport = () => {
         columns={columns}
         dataSource={data}
         loading={loading}
-        pagination={{ pageSize: 5 }}
+        // pagination={{ pageSize: 5 }}
+        pagination={{
+          current:pagination.current,
+          pageSize:pagination.pageSize,
+          total: pagination.total,
+          onChange:(page, pageSize)=>fetchReport("", page, pageSize),
+        }}
       />
-     
 
-      <Button type="primary"
-       onClick={async ()=>{
-        const token = localStorage.getItem('token');
-        try{
-          const res = await axios.get("http://localhost:5000/api/attendances/employee-report/export",{
-            headers: { Authorization: `Bearer ${token}`},
-            responseType: 'blob', // import for excel files
-          });
 
-          //Create a URL for the blob
-          const url = window.URL.createObjectURL(new Blob([res.data]));
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', 'employee_report.xlsx'); //file name
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-
-        }catch(error){
-          console.log("Error exporting report:", error);
-        }
-       }}
-      >
-        Export to Excel 
-      </Button>
     </div>
   );
 };

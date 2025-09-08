@@ -20,19 +20,7 @@ import Report from './pages/report/report.jsx'
 
 const App = () => {
   return (
-    // <div>
-    //  <Navbar/>
-
-    //   <ToastContainer position="top-right" autoClose={3000}/>
-    //   <Routes>
-
-    //     <Route path='/' element={<ProtectedRoute><AddEmployee/></ProtectedRoute> }></Route>
-    //     <Route path='/attendance' element={<ProtectedRoute><Attendance/></ProtectedRoute> }></Route>
-    //     {/* Default */}
-    //     <Route path='*' element={<Navigate to='/login'/>}></Route>
-    //   </Routes>
-
-    // </div>
+    
 
     <>
       <Routes>
@@ -78,6 +66,7 @@ const App = () => {
           }>
 
           </Route>
+         
 
         {/* 404 Page Not Found */}
          <Route path='*' element={<NotFound/>} />
