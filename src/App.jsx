@@ -11,6 +11,8 @@ import VerifyEmail from './pages/verifiymessage/VerifiyEmail.jsx';
 import AttendanceReport from './pages/attendance report/AttendanceReport.jsx';
 import EmployeeReport from './pages/employeeReport/EmployeeReport.jsx'
 import Report from './pages/report/report.jsx'
+import LeaveReport from './pages/leave/LeaveReport.jsx'
+import HolidayRecord from './pages/holiday/HolidayRecord.jsx'
 
 
 
@@ -65,6 +67,24 @@ const App = () => {
             </ProtectedRoute>
           }>
 
+          </Route>
+
+          <Route path='/leave' element={
+           <ProtectedRoute>
+            <Navbar/>
+            <LeaveReport/>
+           </ProtectedRoute>
+          }>
+            
+          </Route>
+
+          <Route path='/holiday' element={
+           <ProtectedRoute>
+            <Navbar/>
+            <HolidayRecord/>
+           </ProtectedRoute>
+          }>
+            
           </Route>
          
 
