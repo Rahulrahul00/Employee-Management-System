@@ -2,7 +2,7 @@
 
 // export default EmployeeReport;
 import React, { useEffect, useState } from "react";
-import { Table, Input, DatePicker, Dropdown, Space, Button,  } from "antd";
+import { Table, Input, DatePicker, Dropdown, Space, Button, } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 import jsPDF from "jspdf";
@@ -21,11 +21,11 @@ const EmployeeReport = () => {
     dayjs().endOf("month"),
   ]);
 
-const [pagination , setPagination]  = useState({
-  current: 1,
-  pageSize:5,
-  total:0,
-})
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 5,
+    total: 0,
+  })
 
   // Fetch report data
   const fetchReport = async (employeeName = "", page = pagination.current, pageSize = pagination.pageSize) => {
@@ -39,17 +39,17 @@ const [pagination , setPagination]  = useState({
         "http://localhost:5000/api/attendances/employee-report",
         {
           headers: { Authorization: `Bearer ${token}` },
-          params: { employeeName, startDate, endDate, page, pageSize},
+          params: { employeeName, startDate, endDate, page, pageSize },
         }
       );
-       
+     console.log(res.data)
       //backend should return { rows: [...], total: number }
       setData(res.data.data);
       setPagination({
         ...pagination,
         current: res.data.pagination.current,
         pageSize: res.data.pagination.pageSize,
-        total:res.data.pagination.total,
+        total: res.data.pagination.total,
 
       })
       // console.log(res.data)
@@ -65,7 +65,7 @@ const [pagination , setPagination]  = useState({
   }, [dateRange]);
 
   const onSearch = (value) => {
-    fetchReport(value, 1 , pagination.pageSize);//reset to first page on search
+    fetchReport(value, 1, pagination.pageSize);//reset to first page on search
   };
   const formatHours = (decimalHours) => {
     if (!decimalHours) return "0 h 0 m";
@@ -106,15 +106,21 @@ const [pagination , setPagination]  = useState({
 
 
   const columns = [
-    { title: "SL No", key: "slno", render:(text,record, index) => (pagination.current - 1) * pagination.pageSize + index + 1, align:"center" },
+    { title: "SL No", key: "slno", render: (text, record, index) => (pagination.current - 1) * pagination.pageSize + index + 1, align: "center" },
     { title: "Employee Name", dataIndex: "employee_name", key: "employee_name", align: "center" },
-    { title: "Total Working Days", dataIndex: "total_working_days", key: "total_working_days",  align: "center" },
-    { title: "Total Leaves", dataIndex: "total_leaves", key: "total_leaves",  align: "center" },
+    { title: "Total Working Days", dataIndex: "total_working_days", key: "total_working_days", align: "center" },
+    { title: " Total Present", dataIndex: "total_present", key: "total_present", align: "center" },
+    { title: " Total Absent", dataIndex: "total_absent", key: "total_absent", align: "center" },
+    { title: "Total Leaves", dataIndex: "total_leaves", key: "total_leaves", align: "center" },
+    { title: " Total Active days", dataIndex: "total_active_days", key: "total_active_days", align: "center" },
+
     {
       title: "Total Working Hours", dataIndex: "total_working_hours", key: "total_working_hours",
       render: (value) => formatHours(value), // formatt HH:MM
-       align: "center"
+      align: "center"
     },
+    { title: " Average working Hours", dataIndex: "average_working_hours", key: "average_working_hours", align: "center" },
+
   ];
 
   const items = [
@@ -156,7 +162,7 @@ const [pagination , setPagination]  = useState({
 
   return (
     <div style={{ padding: 20, position: "relative" }}>
-      <h2 className="text-center fw-semibold" style={{ color: "#386641" }}>Employee Report</h2>
+      <h2 className="text-center m-3 fw-semibold" style={{ color: "#386641" }}>Employee Attendance Report</h2>
 
 
       {/* Search + Date Filter */}
@@ -221,10 +227,10 @@ const [pagination , setPagination]  = useState({
         loading={loading}
         // pagination={{ pageSize: 5 }}
         pagination={{
-          current:pagination.current,
-          pageSize:pagination.pageSize,
+          current: pagination.current,
+          pageSize: pagination.pageSize,
           total: pagination.total,
-          onChange:(page, pageSize)=>fetchReport("", page, pageSize),
+          onChange: (page, pageSize) => fetchReport("", page, pageSize),
         }}
       />
 

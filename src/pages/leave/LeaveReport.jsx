@@ -3,6 +3,8 @@ import { Button, Drawer, Table, Form, Input, DatePicker, Select, Radio, message,
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { toast } from 'react-toastify';
+import { Toast } from 'bootstrap';
 
 const { Option } = Select;
 const LeaveReport = () => {
@@ -64,7 +66,7 @@ const LeaveReport = () => {
 
             if (editingLeave) {
                 await axios.put(`http://localhost:5000/api/leavereports/${editingLeave.id}`, payload);
-                message.success('Leave report updated successfully');
+                toast.success('Leave report updated successfully');
                 await fetchLeaveReport();
 
                 // //update table
@@ -81,7 +83,11 @@ const LeaveReport = () => {
             setEditingLeave(null);
         } catch (error) {
             console.log("Error posting leave", error);
-            message.error("Error saving leave report");
+            if(error.response && error.response.status === 400){
+                toast.error(error.response.data.error || "Duplicate date not allowed")
+            }else{
+                toast.error("Failed to Update Leave");
+            }
         }
     }
 
@@ -102,7 +108,7 @@ const LeaveReport = () => {
     const handleDelete = async (id) => {
         try {
             await axios.delete(`http://localhost:5000/api/leavereports/${id}`);
-            message.success("Leave report deleted successfully");
+            toast.success("Leave report deleted successfully");
             setLeaves(leaves.filter(l => l.id !== id));
         } catch (error) {
             console.log("Error deleting leave", error);
@@ -168,6 +174,7 @@ const LeaveReport = () => {
                     status: leave.status,
                     reason: leave.reason
                 }))}
+                pagination={{pageSize:5}}
 
             />
             {/* Leave marking modal */}

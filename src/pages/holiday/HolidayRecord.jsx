@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Tag, Button, Modal, Form, Input, Select, DatePicker, message } from 'antd';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const { Option } = Select;
 
@@ -28,8 +29,10 @@ const HolidayRecord = () => {
   }, [])
   // Table columns
   const columns = [
-    { title: 'Date', dataIndex: 'date', key: 'date', align: 'center',
-       render: (date) => dayjs(date).format("DD-MM-YYYY") },
+    {
+      title: 'Date', dataIndex: 'date', key: 'date', align: 'center',
+      render: (date) => dayjs(date).format("DD-MM-YYYY")
+    },
     { title: 'Holiday Name', dataIndex: 'name', key: 'name', align: 'center' },
     {
       title: 'Type', dataIndex: 'type', align: 'center',
@@ -65,18 +68,21 @@ const HolidayRecord = () => {
 
     try {
       await axios.post('http://localhost:5000/api/holidayreport', newHoliday);
-      message.success("Holiday added successfully!");
+      toast.success("Holiday added successfully!");
       fetchHolidays();
       handleCancel();
 
     } catch (error) {
-      message.error("Failed to add holiday");
+      console.log("Backend error response:", error.response?.data);
+      if (error.response && error.response.status === 400) {
+        toast.error(error.response.data.error || "Duplicate date not allowed");
+      } else {
+        toast.error("Failed to add holiday");
+      }
     }
-
     // setHoliday([...holiday, newHoliday]);
     // message.success("Holiday added successfull!");
     // handleCancel();
-
   }
 
   return (
@@ -95,7 +101,7 @@ const HolidayRecord = () => {
         dataSource={holiday}
         columns={columns}
         rowKey='id'
-        pagination={false}
+        pagination={{ pageSize: 6 }}
         size='small'
         bordered={true}
         style={{ width: '80%', margin: '0 auto' }}
@@ -121,7 +127,21 @@ const HolidayRecord = () => {
             name="name"
             rules={[{ required: true, message: "Please enter holiday name" }]}
           >
-            <Input placeholder="Enter holiday name" />
+            {/* <Input placeholder="Enter holiday name" /> */}
+            <Select
+              placeholder='Enter holiday name'
+              mode='tags'
+              option={[
+                {value: "Sunday", label:"Sunday"},
+                {value: "Saturday", label:"Saturday"},
+
+
+              ]}
+            >
+              <Select.Option value="Sunday">Sunday</Select.Option>
+              <Select.Option value="Saturday">Saturday</Select.Option>
+
+            </Select>
           </Form.Item>
 
           <Form.Item
@@ -132,7 +152,7 @@ const HolidayRecord = () => {
             <Select placeholder="Select type">
               <Option value="Weekend">Weekend</Option>
               <Option value="Special">Special Holiday</Option>
-              <Option value="Other">Other</Option>
+
             </Select>
           </Form.Item>
 
@@ -140,14 +160,11 @@ const HolidayRecord = () => {
             <Button type="primary" htmlType="submit" style={{ marginRight: "1rem" }}>
               Add
             </Button>
-            <Button >Cancel</Button>
+            <Button onClick={handleCancel} >Cancel</Button>
           </Form.Item>
         </Form>
 
       </Modal>
-
-
-
     </div>
   )
 }
