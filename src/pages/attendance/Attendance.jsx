@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Modal, Button, Form, Table, Badge } from 'react-bootstrap';
+import { Modal, Button, Form, Table, Badge, Pagination } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';

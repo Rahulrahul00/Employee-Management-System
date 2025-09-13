@@ -119,7 +119,10 @@ const EmployeeReport = () => {
       render: (value) => formatHours(value), // formatt HH:MM
       align: "center"
     },
-    { title: " Average working Hours", dataIndex: "average_working_hours", key: "average_working_hours", align: "center" },
+    { title: " Average working Hours", dataIndex: "avg_working_hours", key: "avg_working_hours",
+      render: (value) => formatHours(value),
+      align: "center"
+    },
 
   ];
 
