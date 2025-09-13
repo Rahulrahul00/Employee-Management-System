@@ -103,7 +103,7 @@ const AttendanceReport = () => {
         <div className='container my-5'>
             <div className='card shadow'>
                 <div className='card-body'>
-                    <h4 className='mb-4 text-center'>Attendance Report</h4>
+                    <h4 className='mb-4 text-center' style={{color:'#003049', fontSize:'1.8rem'}}>Employee Attendance Log</h4>
                     <div className='d-flex justify-content-end '>
                         <Button onClick={()=>navigate('/employeereport')} className='bg-black'>Employee Report</Button>
                     </div>

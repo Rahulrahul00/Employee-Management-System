@@ -11,7 +11,7 @@ import { FaDownload } from "react-icons/fa";
 
 
 const { Search } = Input;
-// const { RangePicker } = DatePicker;
+const { RangePicker } = DatePicker; 
 
 const EmployeeReport = () => {
   const [data, setData] = useState([]);
@@ -165,7 +165,7 @@ const EmployeeReport = () => {
 
   return (
     <div style={{ padding: 20, position: "relative" }}>
-      <h2 className="text-center m-3 fw-semibold" style={{ color: "#386641" }}>Employee Attendance Report</h2>
+      <h2 className="text-center m-5 fw-semibold" style={{ color: "#386641" }}>Employee Attendance Report</h2>
 
 
       {/* Search + Date Filter */}
@@ -214,15 +214,15 @@ const EmployeeReport = () => {
         </div>
 
 
-        {/* <RangePicker
+        <RangePicker
           value={dateRange}
           onChange={(values) => setDateRange(values)}
           format="YYYY-MM-DD"
         />
-        <Button type="primary" onClick={() => fetchReport()}>Filter</Button> */}
+        <Button type="primary" onClick={() => fetchReport()}>Filter</Button>
       </Space>
 
-      {/* Table */}
+      {/* Table */} 
       <Table style={{ textAlign: "center" }}
         rowKey="id"
         columns={columns}
